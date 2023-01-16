@@ -1,136 +1,127 @@
-package calcRA;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
-class RomanArabianCalc {
-    static Scanner scanner = new Scanner(System.in);
-    static int number1, number2;
-    static char operation;
-    static int result;
-
-    public static void main (String[] args) {
-        System.out.println("Введите два арабских числа от 0 до 10 или два римских числа от I до X");
-        String userInput = scanner.nextLine();
-        char[] under_char = new char[10];
-        for (int i = 0; i < userInput.length(); i++) {
-            under_char[i] = userInput.charAt(i);
-            if (under_char[i] == '+') {
-                operation = '+';
-            }
-            if (under_char[i] == '-') {
-                operation = '-';
-            }
-            if (under_char[i] == '*') {
-                operation = '*';
-            }
-            if (under_char[i] == '/') {
-                operation = '/';
-            }
-        }
-        String under_charString = String.valueOf(under_char);
-        String[] blacks = under_charString.split("[+-/*]");
-        String stable00 = blacks[0];
-        String stable01 = blacks[1];
-        String string03 = stable01.trim();
-        number1 = romanToNumber(stable00);
-        number2 = romanToNumber(string03);
-        if (number1 < 0 && number2 < 0) {
-            result = 0;
-        } else {
-            result = calculated(number1, number2, operation);
-            System.out.println("---Результат для римских цифр----");
-            String resultRoman = convertNumToRoman(result);
-            System.out.println(stable00 + " " + operation + " " + string03 + " = " + resultRoman);
-        }
-        number1 = Integer.parseInt(stable00);
-        number2 = Integer.parseInt(string03);
-        result = calculated(number1, number2, operation);
-        System.out.println("--Результат для арабских цифр----");
-        System.out.println(number1 + " " + operation + " " + number2 + " = " + result);
+public class Main {
+    private static final ArrayList<StringIntPair> letters = new ArrayList<>();
+    static {
+        letters.add(new StringIntPair("I", 1));
+        letters.add(new StringIntPair("IV", 4));
+        letters.add(new StringIntPair("V", 5));
+        letters.add(new StringIntPair("IX", 9));
+        letters.add(new StringIntPair("X", 10));
+        letters.add(new StringIntPair("XL", 40));
+        letters.add(new StringIntPair("L", 50));
+        letters.add(new StringIntPair("XC", 90));
+        letters.add(new StringIntPair("C", 100));
+        Collections.reverse(letters);
     }
 
-    private static String convertNumToRoman (int numArabian) {
-        String[] roman = {"O", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X","XI","XII","XIII","VX","XV","XVI","XVII","XVIII","XIX","XX"};
-        final String s = roman[numArabian];
-        return s;
-    }
-
-    private static int romanToNumber (String roman) {
-        try {
-            if (roman.equals("I")) {
-                return 1;
-            } else if (roman.equals("II")) {
-                return 2;
-            } else if (roman.equals("III")) {
-                return 3;
-            } else if (roman.equals("IV")) {
-                return 4;
-            } else if (roman.equals("V")) {
-                return 5;
-            } else if (roman.equals("VI")) {
-                return 6;
-            } else if (roman.equals("VII")) {
-                return 7;
-            } else if (roman.equals("VIII")) {
-                return 8;
-            } else if (roman.equals("IX")) {
-                return 9;
-            } else if (roman.equals("X")) {
-                return 10;
-            } else if (roman.equals("XI")) {
-                return 11;
-            } else if (roman.equals("XII")) {
-                return 12;
-            } else if (roman.equals("XIII")) {
-                return 13;
-            } else if (roman.equals("VX")) {
-                return 14;
-            } else if (roman.equals("XV")) {
-                return 15;
-            } else if (roman.equals("XVI")) {
-                return 16;
-            } else if (roman.equals("XVII")) {
-                return 17;
-            } else if (roman.equals("XVIII")) {
-                return 18;
-            } else if (roman.equals("XIX")) {
-                return 19;
-            } else if (roman.equals("XX")) {
-                return 20;}
-        } catch (InputMismatchException e) {
-            throw new InputMismatchException("Неверный формат данных");
+    static class StringIntPair{
+        private final String first;
+        private final int second;
+        public StringIntPair(String first, int second){
+            this.first = first;
+            this.second = second;
         }
-        return -1;
-    }
-
-    public static int calculated (int num1, int num2, char op) {
-        int result = 0;
-        if (num1>10){
-            System.exit(0);;}
-        if (num2>10){System.exit(0);;}
-        switch (op) {
-            case '+':
-                result = num1 + num2;
-                break;
-            case '-':
-                result = num1 - num2;
-                break;
-            case '*':
-                result = num1 * num2;
-                break;
-            case '/':
-                try {
-                    result = num1 / num2;
-                } catch (ArithmeticException | InputMismatchException e) {
-                    System.out.println("Exception : " + e);
-                    System.out.println("Only integer non-zero parameters allowed");
-
-                    break;
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Не верный знак операции");
+        public String getFirst() {
+            return first;
         }
-        return result;
+
+        public int getSecond() {
+            return second;
+        }
     }
+
+    static class IntIntPair{
+        private final int first;
+        private final int second;
+        private IntIntPair(int first, int second){
+            this.first = first;
+            this.second = second;
+        }
+        public static IntIntPair getOperands(String[] arr) throws Exception{
+            if (arr.length > 2)
+                throw new Exception("формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
+            if (arr.length < 2)
+                return null;
+            int n1;
+            int n2;
+            try {
+                n1 = Integer.parseInt(arr[0]);
+                n2 = Integer.parseInt(arr[1]);
+            }
+            catch (Exception e){
+                throw new Exception("т.к. строка не является математической операцией"); }
+            if (n1 > 10 || n1 < 1 || n2 > 10 || n2 < 1)
+                throw new Exception("Значение не в необходимом диапазоне [1; 10]");
+            return new IntIntPair(n1, n2);
+        }
+
+        public int getFirst() {
+            return first;
+        }
+
+        public int getSecond() {
+            return second;
+        }
+    }
+
+    public static void main(String[] args) throws Exception{
+        Scanner in = new Scanner(System.in);
+        String query = in.nextLine();
+        boolean isRoman = query.contains("I") || query.contains("V") || query.contains("X");
+        if (query.contains("0") || query.contains("1") || query.contains("2") || query.contains("3") || query.contains("4") || query.contains("5") || query.contains("6") || query.contains("7") || query.contains("8") || query.contains("9"))
+            if (isRoman)
+                throw new Exception("используются одновременно разные системы счисления");
+        query = query.replaceAll(" ", "");
+        if (isRoman) {
+            query = toNormal(query);
+        }
+        int answer = -1000;
+        IntIntPair pair;
+        pair = IntIntPair.getOperands(query.split("\\*"));
+        if (pair != null)
+            answer = pair.getFirst() * pair.getSecond();
+        pair = IntIntPair.getOperands(query.split("/"));
+        if (pair != null)
+            answer = pair.getFirst() / pair.getSecond();
+        pair = IntIntPair.getOperands(query.split("\\+"));
+        if (pair != null)
+            answer = pair.getFirst() + pair.getSecond();
+        pair = IntIntPair.getOperands(query.split("-"));
+        if (pair != null)
+            answer = pair.getFirst() - pair.getSecond();
+        if (answer == -1000)
+            throw new Exception("т.к. строка не является математической операцией");
+        if (isRoman)
+            System.out.println(toRoman(answer));
+        else
+            System.out.println(answer);
+    }
+    public static String toRoman(int val) throws Exception{
+        if (val <= 0)
+            throw new Exception("в римской системе нет отрицательных чисел и 0");
+        StringBuilder sb = new StringBuilder();
+        for(StringIntPair i : letters) {
+            while(val >= i.getSecond()) {
+                sb.append(i.getFirst());
+                val -= i.getSecond();
+            }
+        }
+        return sb.toString();
+    }
+
+    static String toNormal(String query){
+        query = query.replaceAll("VIII", "8");
+        query = query.replaceAll("III", "3");
+        query = query.replaceAll("VII", "7");
+        query = query.replaceAll("II", "2");
+        query = query.replaceAll("IV", "4");
+        query = query.replaceAll("VI", "6");
+        query = query.replaceAll("IX", "9");
+        query = query.replaceAll("X", "10");
+        query = query.replaceAll("V", "5");
+        query = query.replaceAll("I", "1");
+        return query;
+    }
+
 }
